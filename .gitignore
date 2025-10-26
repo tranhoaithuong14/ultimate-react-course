@@ -1,0 +1,141 @@
+# --- OS & Editor junk ---
+.DS_Store
+.DS_Store?
+._*
+.AppleDouble
+.LSOverride
+Icon?
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+.idea/
+.fleet/
+*.iml
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.swp
+*.swo
+.history/
+.vim/
+
+# --- Logs & diagnostics ---
+logs
+log
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+report.*.json
+
+# --- Runtime data ---
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# --- Dependencies ---
+node_modules/
+jspm_packages/
+bower_components/
+
+# --- Build outputs ---
+dist/
+dist-ssr/
+build/
+out/
+coverage/
+*.lcov
+lib-cov/
+.nyc_output/
+.cache/
+.parcel-cache/
+storybook-static/
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+.ts-node/
+.swc/
+.turbo/
+.serverless/
+.webpack/
+
+# Vite and style caches
+.vite/
+.sass-cache/
+
+# Framework-specific
+.next/
+.cache-loader/
+public/build/
+
+# --- Testing & e2e artifacts ---
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
+playwright-report/
+test-results/
+blob-report/
+
+# --- TypeScript ---
+*.tsbuildinfo
+
+# --- Lint & tooling caches ---
+.eslintcache
+.stylelintcache
+
+# --- Package manager artifacts ---
+*.tgz
+.npm/
+.pnpm-debug.log*
+.pnpm-store/
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# --- Environment files (keep templates) ---
+.env
+.env.*
+!.env.example
+!.env.sample
+.envrc
+
+# --- Hosting / deployment ---
+.vercel/
+.netlify/
+
+# --- Secrets & certificates ---
+*.pem
+*.key
+*.crt
+*.pfx
+*.p12
+.sentryclirc
+
+# --- Databases & local services ---
+*.sqlite
+*.sqlite3
+*.db
+*.db-*
+.firebase/
+
+# --- Temporary files ---
+tmp/
+.tmp/
+temp/
+*.tmp
+*.bak
+*.orig
+*.rej
+*~
