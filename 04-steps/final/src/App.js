@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+// A collection of messages that mirrors a learning roadmap. Index stays in sync with the current step.
 const messages = [
   "Learn React ⚛️",
   "Apply for jobs 💼",
@@ -9,7 +10,9 @@ const messages = [
 export default function App() {
   return (
     <div>
+      {/* The App component itself stays stateless; it’s the stage where we mount the practice components. */}
       <Steps />
+      {/* The two StepMessage instances show how a component can receive arbitrary JSX via the children prop. */}
       <StepMessage step={1}>
         <p>Pass in content</p>
         <p>✌️</p>
@@ -24,15 +27,19 @@ export default function App() {
 }
 
 function Steps() {
+  // step stores the current step (1 -> 3). useState returns the current value plus the setter function.
   const [step, setStep] = useState(1);
+  // isOpen toggles whether the step content is visible.
   const [isOpen, setIsOpen] = useState(true);
 
   // const [test, setTest] = useState({ name: "Jonas" });
 
+  // Go back one step unless we are already at the first step. Callback form ensures we always read the latest state.
   function handlePrevious() {
     if (step > 1) setStep((s) => s - 1);
   }
 
+  // Move forward while guarding against overshooting the total step count (3 in this example).
   function handleNext() {
     if (step < 3) {
       setStep((s) => s + 1);
@@ -46,6 +53,7 @@ function Steps() {
 
   return (
     <div>
+      {/* Close button toggles the entire Steps component by inverting the current boolean. */}
       <button className="close" onClick={() => setIsOpen((is) => !is)}>
         &times;
       </button>
@@ -53,14 +61,17 @@ function Steps() {
       {isOpen && (
         <div className="steps">
           <div className="numbers">
+            {/* Apply the active class to every step the user has reached (including the current one). */}
             <div className={step >= 1 ? "active" : ""}>1</div>
             <div className={step >= 2 ? "active" : ""}>2</div>
             <div className={step >= 3 ? "active" : ""}>3</div>
           </div>
 
           <StepMessage step={step}>
+            {/* StepMessage accepts text, JSX, or entire blocks as children; here we read from messages based on the step index. */}
             {messages[step - 1]}
             <div className="buttons">
+              {/* Reusable Button: caller supplies colors, click handler, and child content. */}
               <Button
                 bgColor="#e7e7e7"
                 textColor="#333"
@@ -88,6 +99,7 @@ function Steps() {
 }
 
 function StepMessage({ step, children }) {
+  // StepMessage is a presentational wrapper: it receives the step number and renders whatever children it was given.
   return (
     <div className="message">
       <h3>Step {step}</h3>
@@ -97,6 +109,7 @@ function StepMessage({ step, children }) {
 }
 
 function Button({ textColor, bgColor, onClick, children }) {
+  // Button is a tiny reusable component; inline styles let callers inject dynamic colors without bespoke CSS classes.
   return (
     <button
       style={{ backgroundColor: bgColor, color: textColor }}
