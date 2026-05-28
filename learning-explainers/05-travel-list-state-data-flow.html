@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>05-travel-list: State và Data Flow</title>
+    <style>
+      :root {
+        --ink: #1e293b;
+        --muted: #5d6675;
+        --line: #d6dde8;
+        --page: #f6f3ec;
+        --surface: #ffffff;
+        --code: #111827;
+        --warm: #d8752a;
+        --warm-strong: #b95615;
+        --teal: #177c74;
+        --teal-soft: #d9efec;
+        --gold: #f1b84b;
+        --brown: #5a3e2b;
+        --bad: #b42318;
+        --good: #067647;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        color: var(--ink);
+        background: var(--page);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        line-height: 1.55;
+      }
+
+      body {
+        margin: 0;
+      }
+
+      a {
+        color: var(--teal);
+      }
+
+      code,
+      pre {
+        font-family:
+          "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      }
+
+      .shell {
+        min-height: 100vh;
+      }
+
+      .hero {
+        background: var(--brown);
+        color: #fff8e7;
+        border-bottom: 8px solid var(--gold);
+      }
+
+      .hero-inner,
+      .section-inner {
+        width: min(1120px, calc(100% - 32px));
+        margin: 0 auto;
+      }
+
+      .hero-inner {
+        padding: 36px 0 30px;
+      }
+
+      .eyebrow {
+        margin: 0 0 10px;
+        color: #f8d8a3;
+        font-size: 0.9rem;
+        font-weight: 800;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        max-width: 860px;
+        font-size: 2.55rem;
+        line-height: 1.08;
+        letter-spacing: 0;
+      }
+
+      .hero p {
+        max-width: 820px;
+        margin: 16px 0 0;
+        color: #fff1d5;
+        font-size: 1.08rem;
+      }
+
+      .section {
+        padding: 30px 0;
+      }
+
+      .section:nth-child(odd) {
+        background: #fffaf0;
+      }
+
+      h2 {
+        margin: 0 0 14px;
+        font-size: 1.45rem;
+        letter-spacing: 0;
+      }
+
+      h3 {
+        margin: 0 0 10px;
+        font-size: 1.02rem;
+        letter-spacing: 0;
+      }
+
+      p {
+        margin: 0 0 12px;
+      }
+
+      .lead {
+        max-width: 860px;
+        color: var(--muted);
+      }
+
+      .path-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 16px;
+      }
+
+      .panel strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .component-map {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr 1fr;
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .component {
+        min-height: 164px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+        padding: 16px;
+      }
+
+      .component.app {
+        grid-row: span 2;
+        border-color: #e29a4f;
+        background: #fff7e8;
+      }
+
+      .component .tag {
+        display: inline-flex;
+        align-items: center;
+        min-height: 26px;
+        margin-bottom: 10px;
+        border-radius: 999px;
+        padding: 3px 10px;
+        background: var(--teal-soft);
+        color: #0f5f58;
+        font-size: 0.78rem;
+        font-weight: 800;
+      }
+
+      ul {
+        margin: 10px 0 0;
+        padding-left: 20px;
+      }
+
+      li + li {
+        margin-top: 6px;
+      }
+
+      .flow {
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        gap: 16px;
+        margin-top: 18px;
+      }
+
+      .controls {
+        display: grid;
+        gap: 10px;
+      }
+
+      button,
+      select {
+        min-height: 42px;
+        border: 1px solid #b9c4d2;
+        border-radius: 6px;
+        background: #fff;
+        color: var(--ink);
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+        padding: 9px 12px;
+        font-weight: 800;
+      }
+
+      button.primary {
+        border-color: var(--teal);
+        background: var(--teal);
+        color: #fff;
+      }
+
+      button.warm {
+        border-color: var(--warm);
+        background: var(--warm);
+        color: #fff;
+      }
+
+      button:focus-visible,
+      select:focus-visible {
+        outline: 3px solid #9ad7d0;
+        outline-offset: 2px;
+      }
+
+      .sim {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .state-box {
+        min-height: 240px;
+      }
+
+      .state-box h3 {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 24px;
+        border-radius: 999px;
+        padding: 2px 8px;
+        background: #ecf2f8;
+        color: #3c4858;
+        font-size: 0.76rem;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .item-list {
+        display: grid;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .item-row {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 10px;
+        min-height: 40px;
+        border: 1px solid #dde5ef;
+        border-radius: 6px;
+        padding: 8px 10px;
+        background: #fbfdff;
+      }
+
+      .item-row.packed span {
+        color: #7b8798;
+        text-decoration: line-through;
+      }
+
+      .empty {
+        min-height: 118px;
+        border: 1px dashed #bec8d6;
+        border-radius: 6px;
+        display: grid;
+        place-items: center;
+        color: var(--muted);
+        text-align: center;
+        padding: 12px;
+      }
+
+      .log {
+        max-height: 280px;
+        overflow: auto;
+        border-radius: 6px;
+        background: var(--code);
+        color: #d1fae5;
+        padding: 12px;
+        font-size: 0.88rem;
+      }
+
+      .log div + div {
+        margin-top: 8px;
+      }
+
+      .code-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 18px;
+      }
+
+      pre {
+        overflow: auto;
+        margin: 0;
+        border-radius: 8px;
+        background: var(--code);
+        color: #e5edf7;
+        padding: 16px;
+        font-size: 0.88rem;
+      }
+
+      .quiz-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .answers {
+        display: grid;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .answers button {
+        text-align: left;
+        font-weight: 650;
+      }
+
+      .feedback {
+        min-height: 28px;
+        margin-top: 10px;
+        font-weight: 800;
+      }
+
+      .feedback.good {
+        color: var(--good);
+      }
+
+      .feedback.bad {
+        color: var(--bad);
+      }
+
+      .practice {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-top: 18px;
+      }
+
+      .callout {
+        border-left: 5px solid var(--teal);
+        background: #eef8f6;
+        padding: 14px 16px;
+        border-radius: 8px;
+      }
+
+      .sources {
+        font-size: 0.94rem;
+      }
+
+      @media (max-width: 900px) {
+        .path-grid,
+        .component-map,
+        .flow,
+        .sim,
+        .code-grid,
+        .quiz-grid,
+        .practice {
+          grid-template-columns: 1fr;
+        }
+
+        .component.app {
+          grid-row: auto;
+        }
+      }
+
+      @media (max-width: 540px) {
+        .hero-inner,
+        .section-inner {
+          width: min(100% - 20px, 1120px);
+        }
+
+        h1 {
+          font-size: 2rem;
+        }
+
+        .hero-inner {
+          padding: 28px 0 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <div class="hero-inner">
+          <p class="eyebrow">Ultimate React Course · Project 05</p>
+          <h1>Travel List: hiểu state, props, event và derived data qua một app nhỏ</h1>
+          <p>
+            Mục tiêu của bài này không phải thuộc lòng code. Mục tiêu là đọc được luồng dữ liệu:
+            component nào giữ state, component nào chỉ nhận props, và event đi ngược lên bằng callback nào.
+          </p>
+        </div>
+      </header>
+
+      <section class="section">
+        <div class="section-inner">
+          <h2>Đường đọc code</h2>
+          <p class="lead">
+            Hãy đọc project theo thứ tự này. Mỗi file trả lời một câu hỏi khác nhau, nên đừng bắt đầu từ CSS.
+          </p>
+          <div class="path-grid">
+            <article class="panel">
+              <strong>1. Entry point</strong>
+              <code>src/index.js</code>
+              <p>React gắn toàn bộ app vào DOM và render <code>&lt;App /&gt;</code>.</p>
+            </article>
+            <article class="panel">
+              <strong>2. State owner</strong>
+              <code>components/App.js</code>
+              <p><code>App</code> giữ danh sách <code>items</code> vì nhiều component cần dùng hoặc sửa danh sách này.</p>
+            </article>
+            <article class="panel">
+              <strong>3. Inputs and actions</strong>
+              <code>Form</code>, <code>PackingList</code>, <code>Item</code>
+              <p>Các component con nhận callback qua props để yêu cầu <code>App</code> thay đổi state.</p>
+            </article>
+            <article class="panel">
+              <strong>4. Derived output</strong>
+              <code>Stats.js</code>
+              <p><code>Stats</code> không giữ state riêng. Nó tính số liệu từ <code>items</code> mỗi lần render.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-inner">
+          <h2>Bản đồ component</h2>
+          <p class="lead">
+            Cách đọc quan trọng nhất: state nên nằm ở component thấp nhất nhưng vẫn đủ cao để mọi component cần nó có thể dùng.
+          </p>
+          <div class="component-map">
+            <article class="component app">
+              <span class="tag">App.js</span>
+              <h3>Giữ state chính: <code>items</code></h3>
+              <ul>
+                <li><code>handleAddItems</code>: thêm item mới.</li>
+                <li><code>handleDeleteItem</code>: bỏ item theo <code>id</code>.</li>
+                <li><code>handleToggleItem</code>: đổi <code>packed</code> của một item.</li>
+                <li><code>handleClearList</code>: xóa toàn bộ danh sách sau khi confirm.</li>
+              </ul>
+            </article>
+            <article class="component">
+              <span class="tag">Form.js</span>
+              <h3>Giữ state tạm thời</h3>
+              <p><code>description</code> và <code>quantity</code> chỉ phục vụ form, nên ở ngay trong <code>Form</code>.</p>
+            </article>
+            <article class="component">
+              <span class="tag">PackingList.js</span>
+              <h3>Giữ state hiển thị</h3>
+              <p><code>sortBy</code> chỉ ảnh hưởng cách hiển thị danh sách, không thay đổi danh sách gốc.</p>
+            </article>
+            <article class="component">
+              <span class="tag">Item.js</span>
+              <h3>Không giữ state</h3>
+              <p>Nhận một <code>item</code>, rồi gọi <code>onToggleItem(item.id)</code> hoặc <code>onDeleteItem(item.id)</code>.</p>
+            </article>
+            <article class="component">
+              <span class="tag">Stats.js</span>
+              <h3>Tính dữ liệu dẫn xuất</h3>
+              <p><code>numItems</code>, <code>numPacked</code>, <code>percentage</code> đều được tính từ <code>items</code>.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-inner">
+          <h2>Mini simulator: data flows down, events flow up</h2>
+          <p class="lead">
+            Bấm từng hành động và nhìn log. Đây là bản mô phỏng nhỏ của luồng trong project thật:
+            dữ liệu đi từ <code>App</code> xuống, event đi từ component con ngược lên bằng callback.
+          </p>
+
+          <div class="flow">
+            <aside class="panel">
+              <h3>Hành động</h3>
+              <div class="controls">
+                <button class="primary" data-action="add-passport">Form submit: thêm Passport</button>
+                <button class="primary" data-action="add-socks">Form submit: thêm Socks</button>
+                <button data-action="toggle-first">Item checkbox: toggle item đầu tiên</button>
+                <button data-action="sort-packed">PackingList select: sort by packed</button>
+                <button data-action="sort-input">PackingList select: sort by input</button>
+                <button class="warm" data-action="clear">Clear list</button>
+              </div>
+            </aside>
+
+            <div class="sim">
+              <article class="panel state-box">
+                <h3>
+                  App state
+                  <span class="pill" id="item-count">0 items</span>
+                </h3>
+                <div class="item-list" id="items"></div>
+              </article>
+              <article class="panel state-box">
+                <h3>
+                  Render output
+                  <span class="pill" id="sort-mode">sortBy: input</span>
+                </h3>
+                <p id="stats" class="callout"></p>
+                <div class="log" id="log" aria-live="polite"></div>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-inner">
+          <h2>Bốn đoạn code đáng học kỹ</h2>
+          <p class="lead">
+            Đây là lõi tư duy của project. Nếu bạn hiểu bốn đoạn này, phần còn lại chủ yếu là JSX và styling.
+          </p>
+          <div class="code-grid">
+            <pre><code>function handleAddItems(item) {
+  setItems((items) =&gt; [...items, item]);
+}</code></pre>
+            <pre><code>function handleDeleteItem(id) {
+  setItems((items) =&gt;
+    items.filter((item) =&gt; item.id !== id)
+  );
+}</code></pre>
+            <pre><code>function handleToggleItem(id) {
+  setItems((items) =&gt;
+    items.map((item) =&gt;
+      item.id === id
+        ? { ...item, packed: !item.packed }
+        : item
+    )
+  );
+}</code></pre>
+            <pre><code>sortedItems = items
+  .slice()
+  .sort((a, b) =&gt;
+    a.description.localeCompare(b.description)
+  );</code></pre>
+          </div>
+          <div class="callout" style="margin-top: 16px">
+            <strong>Điểm chính:</strong>
+            <code>filter</code>, <code>map</code>, spread <code>[...items]</code>, object spread
+            <code>{ ...item }</code>, và <code>slice().sort()</code> đều tạo dữ liệu mới thay vì sửa trực tiếp state cũ.
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-inner">
+          <h2>Quiz kiểm tra ngay</h2>
+          <p class="lead">
+            Chọn đáp án. Feedback hiện ngay để bạn biết mình đang đọc đúng hay chỉ đang nhìn code.
+          </p>
+          <div class="quiz-grid">
+            <article class="panel quiz-card">
+              <h3>1. Vì sao <code>items</code> nằm trong <code>App</code>?</h3>
+              <div class="answers">
+                <button data-correct="false">Vì <code>App</code> luôn phải giữ mọi state trong React.</button>
+                <button data-correct="true">Vì <code>Form</code>, <code>PackingList</code>, <code>Item</code>, và <code>Stats</code> cùng cần đọc hoặc thay đổi danh sách.</button>
+                <button data-correct="false">Vì <code>items</code> cần được lưu vào localStorage.</button>
+              </div>
+              <div class="feedback" aria-live="polite"></div>
+            </article>
+
+            <article class="panel quiz-card">
+              <h3>2. Vì sao sort dùng <code>items.slice().sort(...)</code>?</h3>
+              <div class="answers">
+                <button data-correct="true">Vì <code>sort()</code> mutate array, nên cần copy trước khi sort.</button>
+                <button data-correct="false">Vì <code>slice()</code> làm sort nhanh hơn.</button>
+                <button data-correct="false">Vì React không cho dùng <code>sort()</code> trong component.</button>
+              </div>
+              <div class="feedback" aria-live="polite"></div>
+            </article>
+
+            <article class="panel quiz-card">
+              <h3>3. <code>percentage</code> trong <code>Stats</code> nên là gì?</h3>
+              <div class="answers">
+                <button data-correct="false">Một state riêng vì nó xuất hiện trên UI.</button>
+                <button data-correct="true">Derived data, vì tính được từ <code>items</code>.</button>
+                <button data-correct="false">Một prop truyền từ <code>Item</code> lên.</button>
+              </div>
+              <div class="feedback" aria-live="polite"></div>
+            </article>
+
+            <article class="panel quiz-card">
+              <h3>4. Khi bấm nút xóa trong <code>Item</code>, callback nào được gọi?</h3>
+              <div class="answers">
+                <button data-correct="false"><code>setItems([])</code> gọi trực tiếp trong <code>Item</code>.</button>
+                <button data-correct="false"><code>handleClearList()</code> từ <code>PackingList</code>.</button>
+                <button data-correct="true"><code>onDeleteItem(item.id)</code>, rồi đi ngược về handler trong <code>App</code>.</button>
+              </div>
+              <div class="feedback" aria-live="polite"></div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-inner">
+          <h2>Bài tập sau khi đọc</h2>
+          <div class="practice">
+            <article class="panel">
+              <h3>Bài 1: trace bằng lời</h3>
+              <p>
+                Mở <code>components/App.js</code>, <code>Form.js</code>, <code>Item.js</code>, rồi giải thích bằng lời:
+                người dùng thêm một item mới thì code chạy qua những function nào?
+              </p>
+            </article>
+            <article class="panel">
+              <h3>Bài 2: thiết kế nút Clear packed</h3>
+              <p>
+                Không cần code ngay. Hãy trả lời: handler nên nằm ở component nào, dùng <code>filter</code>
+                như thế nào, và cần truyền callback qua component nào?
+              </p>
+            </article>
+          </div>
+          <div class="callout" style="margin-top: 16px">
+            Khi bạn trả lời hai bài này trong chat, mình sẽ dùng câu trả lời đó để cập nhật learning record
+            và chỉ đưa các thuật ngữ đã chắc vào glossary.
+          </div>
+        </div>
+      </section>
+
+      <section class="section sources">
+        <div class="section-inner">
+          <h2>Nguồn chính thức đã dùng</h2>
+          <ul>
+            <li><a href="https://react.dev/learn/state-a-components-memory">React docs: State: A Component's Memory</a></li>
+            <li><a href="https://react.dev/learn/responding-to-events">React docs: Responding to Events</a></li>
+            <li><a href="https://react.dev/learn/sharing-state-between-components">React docs: Sharing State Between Components</a></li>
+            <li><a href="https://react.dev/learn/updating-arrays-in-state">React docs: Updating Arrays in State</a></li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const state = {
+        items: [],
+        sortBy: "input",
+        nextId: 1,
+        log: [
+          "Bắt đầu: App state items = [], PackingList state sortBy = input.",
+        ],
+      };
+
+      const itemData = {
+        passport: { description: "Passport", quantity: 2 },
+        socks: { description: "Socks", quantity: 6 },
+      };
+
+      const itemCount = document.querySelector("#item-count");
+      const sortMode = document.querySelector("#sort-mode");
+      const itemsEl = document.querySelector("#items");
+      const statsEl = document.querySelector("#stats");
+      const logEl = document.querySelector("#log");
+
+      function addLog(lines) {
+        state.log = [...lines, ...state.log].slice(0, 12);
+      }
+
+      function sortedItems() {
+        if (state.sortBy === "packed") {
+          return [...state.items].sort(
+            (a, b) => Number(a.packed) - Number(b.packed),
+          );
+        }
+
+        return state.items;
+      }
+
+      function render() {
+        itemCount.textContent = `${state.items.length} items`;
+        sortMode.textContent = `sortBy: ${state.sortBy}`;
+
+        if (state.items.length === 0) {
+          itemsEl.innerHTML = '<div class="empty">Danh sách đang rỗng.</div>';
+        } else {
+          itemsEl.innerHTML = sortedItems()
+            .map(
+              (item) => `
+                <div class="item-row ${item.packed ? "packed" : ""}">
+                  <strong>${item.quantity}x</strong>
+                  <span>${item.description}</span>
+                  <code>#${item.id}</code>
+                </div>
+              `,
+            )
+            .join("");
+        }
+
+        const numItems = state.items.length;
+        const numPacked = state.items.filter((item) => item.packed).length;
+        const percentage = numItems
+          ? Math.round((numPacked / numItems) * 100)
+          : 0;
+
+        statsEl.textContent = numItems
+          ? `Stats render: ${numItems} items, ${numPacked} packed, ${percentage}%.`
+          : "Stats render: hãy thêm item đầu tiên.";
+
+        logEl.innerHTML = state.log.map((line) => `<div>${line}</div>`).join("");
+      }
+
+      function addItem(kind) {
+        const base = itemData[kind];
+        const item = {
+          id: state.nextId,
+          description: base.description,
+          quantity: base.quantity,
+          packed: false,
+        };
+
+        state.nextId += 1;
+        state.items = [...state.items, item];
+        addLog([
+          `Form.handleSubmit tạo item #${item.id}: ${item.description}.`,
+          "Form gọi onAddItems(newItem).",
+          "App.handleAddItems chạy setItems((items) => [...items, item]).",
+        ]);
+        render();
+      }
+
+      function toggleFirst() {
+        if (!state.items.length) {
+          addLog(["Chưa có item để toggle. Hãy thêm item trước."]);
+          render();
+          return;
+        }
+
+        const firstId = state.items[0].id;
+        state.items = state.items.map((item) =>
+          item.id === firstId ? { ...item, packed: !item.packed } : item,
+        );
+        addLog([
+          `Item goi onToggleItem(${firstId}).`,
+          "App.handleToggleItem dùng map để tạo array mới.",
+          "Item dùng object spread để chỉ thay packed của item đúng id.",
+        ]);
+        render();
+      }
+
+      function setSortBy(nextSortBy) {
+        state.sortBy = nextSortBy;
+        addLog([
+          `PackingList setSortBy("${nextSortBy}").`,
+          nextSortBy === "packed"
+            ? "Render dùng copy [...items].sort(...), không đổi App state gốc."
+            : "Render quay về input order từ App state gốc.",
+        ]);
+        render();
+      }
+
+      function clearList() {
+        state.items = [];
+        addLog([
+          "PackingList button gọi onClearList().",
+          "App.handleClearList chạy setItems([]).",
+        ]);
+        render();
+      }
+
+      document.querySelectorAll("[data-action]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const action = button.dataset.action;
+
+          if (action === "add-passport") addItem("passport");
+          if (action === "add-socks") addItem("socks");
+          if (action === "toggle-first") toggleFirst();
+          if (action === "sort-packed") setSortBy("packed");
+          if (action === "sort-input") setSortBy("input");
+          if (action === "clear") clearList();
+        });
+      });
+
+      document.querySelectorAll(".quiz-card").forEach((card) => {
+        const feedback = card.querySelector(".feedback");
+        card.querySelectorAll("[data-correct]").forEach((button) => {
+          button.addEventListener("click", () => {
+            const isCorrect = button.dataset.correct === "true";
+            feedback.className = `feedback ${isCorrect ? "good" : "bad"}`;
+            feedback.textContent = isCorrect
+              ? "Đúng. Giải thích lại bằng code của project để chắc hơn."
+              : "Chưa đúng. Đọc lại component owner và luồng callback ở trên.";
+          });
+        });
+      });
+
+      render();
+    </script>
+  </body>
+</html>

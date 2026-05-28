@@ -18,6 +18,10 @@
   Use for: understanding `useState`, local component memory, and why setting state triggers a re-render.
 - [React docs: Queueing a Series of State Updates](https://react.dev/learn/queueing-a-series-of-state-updates)
   Use for: understanding functional updater callbacks like `setStep((s) => s + 1)`.
+- [React docs: Sharing State Between Components](https://react.dev/learn/sharing-state-between-components)
+  Use for: deciding which component should own shared state and when to lift state up to a common parent.
+- [React docs: Updating Arrays in State](https://react.dev/learn/updating-arrays-in-state)
+  Use for: adding, removing, replacing, and sorting items without mutating React state.
 
 ## Wisdom (Communities)
 
