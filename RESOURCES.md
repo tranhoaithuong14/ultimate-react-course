@@ -12,6 +12,12 @@
   Use for: rendering arrays with `map()` and choosing `key` values.
 - [React docs: Conditional Rendering](https://react.dev/learn/conditional-rendering)
   Use for: rendering different JSX based on booleans or expressions.
+- [React docs: Responding to Events](https://react.dev/learn/responding-to-events)
+  Use for: attaching event handlers such as `onClick={handleNext}` and avoiding immediate function calls during render.
+- [React docs: State: A Component's Memory](https://react.dev/learn/state-a-components-memory)
+  Use for: understanding `useState`, local component memory, and why setting state triggers a re-render.
+- [React docs: Queueing a Series of State Updates](https://react.dev/learn/queueing-a-series-of-state-updates)
+  Use for: understanding functional updater callbacks like `setStep((s) => s + 1)`.
 
 ## Wisdom (Communities)
 
